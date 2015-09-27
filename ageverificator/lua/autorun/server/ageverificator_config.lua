@@ -2,6 +2,10 @@ AGECHECK_LANGUAGE = "english" -- There's also german currently available
 
 AGECHECK_USE_EXCLUDED = true -- If this is set to true, the EXCLUDED groups setting will be used, otherwise only the included groups are checked
 AGECHECK_EXCLUDED_GROUPS = { } -- Comma seperated list of groups that should NEVER be checked
+-- Made by Luk
+-- http://steamcommunity.com/id/doctorluk/
+-- Version: 1.0
+
 AGECHECK_INCLUDED_GROUPS = { "user", "someotheruser" } -- Comma seperated list of groups that SHOULD ONLY be checked
 AGECHECK_MINIMUM_AGE = 18 -- The minimum age a player should have
 AGECHECK_MAXIMUM_TEST = 4 -- The times a player will be checked until he will never be checked again

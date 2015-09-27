@@ -1,3 +1,7 @@
+-- Made by Luk
+-- http://steamcommunity.com/id/doctorluk/
+-- Version: 1.0
+
 local CATEGORY = "Age Verificator"
 
 function ulx.killbirthdaydatabase ( calling_ply )

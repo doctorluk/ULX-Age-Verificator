@@ -1,3 +1,7 @@
+-- Made by Luk
+-- http://steamcommunity.com/id/doctorluk/
+-- Version: 1.0
+
 if CLIENT then
 
 -- DEFAULT SETTINGS, just in case something goes horribly wrong

@@ -1,3 +1,7 @@
+-- Made by Luk
+-- http://steamcommunity.com/id/doctorluk/
+-- Version: 1.0
+
 if SERVER then
 
 if not AGECHECK_LANGUAGE then
