@@ -292,7 +292,7 @@ function ageverify_notifyAdmins( ply, day, month, year, zodiac )
 	local players = player.GetAll()
 	for _, player in ipairs( players ) do
 		if ULib.ucl.query( player, "ulx seebirthdayentry" ) then
-			ULib.tsayColor( player, true, Color( 255, 0, 0, 255 ), "[VERTRAULICH] ", Color( 255, 255, 0, 255 ), "Spieler '", Color( 0, 255, 255, 255 ), ply:Nick(), Color( 255, 255, 0, 255 ), "'", Color( 255, 255, 0, 255 ), " -> Alter: ",  ageColor, math.floor(ageverify_getAge( day, month, year )) .. "", Color( 255, 255, 0, 255 ), ", Geburtsdatum: ", Color( 0, 255, 0, 255 ), day .. "." .. month .. "." .. year, Color( 255, 255, 0, 255 ), ", ", Color( 0, 255, 0, 255 ), zodiac .. " ", validZodiacColor, validZodiac )
+			ULib.tsayColor( player, true, Color( 255, 0, 0, 255 ), "[CONFIDENTIAL] ", Color( 255, 255, 0, 255 ), "Player '", Color( 0, 255, 255, 255 ), ply:Nick(), Color( 255, 255, 0, 255 ), "'", Color( 255, 255, 0, 255 ), " -> Age: ",  ageColor, math.floor(ageverify_getAge( day, month, year )) .. "", Color( 255, 255, 0, 255 ), ", Date of Birth: ", Color( 0, 255, 0, 255 ), day .. "." .. month .. "." .. year, Color( 255, 255, 0, 255 ), ", ", Color( 0, 255, 0, 255 ), zodiac .. " ", validZodiacColor, validZodiac )
 		end
 	end
 	
@@ -300,10 +300,10 @@ end
 
 -- Print ban to chat
 function ageverify_reportBan( target_ply, banText, duration )
-	local time = " (#i Minute(n))"
+	local time = " (#i minute(s))"
 	
 	if duration == 0 then 
-		time = " (Permanent)"
+		time = " (permanent)"
 	elseif duration == -1 then 
 		time = ""
 	end
