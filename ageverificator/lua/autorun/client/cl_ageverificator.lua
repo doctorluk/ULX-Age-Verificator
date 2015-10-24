@@ -1,6 +1,6 @@
 -- Made by Luk
 -- http://steamcommunity.com/id/doctorluk/
--- Version: 1.0
+-- Version: 1.1
 
 if CLIENT then
 
@@ -13,6 +13,7 @@ AGECHECK_FORM_TITLE = [[Please enter your Date Of Birth and Zodiac Sign:]]
 AGECHECK_DISCLAIMER = [[PRIVACY:
 YOUR DATA IS BEING PROCESSED AUTOMATICALLY AND NOT SHARED WITH THIRD-PARTIES]]
 AGECHECK_ZODIACS = {"Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Saggitarius", "Capricornus", "Aquarius", "Pisces"}
+AGECHECK_AGE = "Age"
 AGECHECK_DAY = "Day"
 AGECHECK_MONTH = "Month"
 AGECHECK_YEAR = "Year"
@@ -87,10 +88,21 @@ local function ageverify_runAgeCheck()
 
 	
 	-- CHOICES (DAY, MONTH, YEAR)
+	
+	-- AGE
+	local age = vgui.Create( "DComboBox" )
+	age:SetParent( ageCheckWindow )
+	age:SetPos( 250, 130 )
+	age:SetSize( 100, 20 )
+	age:SetValue( AGECHECK_AGE )
+	for i = 1, 99, 1 do
+		age:AddChoice( i )
+	end
+	
 	-- DAY
 	local day = vgui.Create( "DComboBox" )
 	day:SetParent( ageCheckWindow ) -- Set parent to our "DermaPanel"
-	day:SetPos( 100, 125 )
+	day:SetPos( 100, 165 )
 	day:SetSize( 100, 20 )
 	day:SetValue( AGECHECK_DAY )
 	for i = 1, 31, 1 do
@@ -100,7 +112,7 @@ local function ageverify_runAgeCheck()
 	-- MONTH
 	local month = vgui.Create( "DComboBox" )
 	month:SetParent( ageCheckWindow )
-	month:SetPos( 250, 125 )
+	month:SetPos( 250, 165 )
 	month:SetSize( 100, 20 )
 	month:SetValue( AGECHECK_MONTH )
 	for i = 1, 12, 1 do
@@ -110,7 +122,7 @@ local function ageverify_runAgeCheck()
 	-- YEAR
 	local year = vgui.Create( "DComboBox" )
 	year:SetParent( ageCheckWindow )
-	year:SetPos( 400, 125 )
+	year:SetPos( 400, 165 )
 	year:SetSize( 100, 20 )
 	year:SetValue( AGECHECK_YEAR )
 	for i = 1900, 2015, 1 do
@@ -120,7 +132,7 @@ local function ageverify_runAgeCheck()
 	-- ZODIAC SIGN
 	local zodiac = vgui.Create( "DComboBox" )
 	zodiac:SetParent( ageCheckWindow )
-	zodiac:SetPos( 250, 175 )
+	zodiac:SetPos( 250, 200 )
 	zodiac:SetSize( 100, 20 )
 	zodiac:SetValue( AGECHECK_ZODIAC )
 	for i = 1, #AGECHECK_ZODIACS, 1 do
@@ -134,9 +146,9 @@ local function ageverify_runAgeCheck()
 	send:SetPos( 250, 250 )
 	send:SetSize( 100, 30 )
 	send.DoClick = function ()
-		if day:GetSelectedID() and month:GetSelectedID() and year:GetSelectedID() and zodiac:GetSelectedID() then
+		if age:GetSelectedID() and day:GetSelectedID() and month:GetSelectedID() and year:GetSelectedID() and zodiac:GetSelectedID() then
 			net.Start( "agecheck_send" )
-			net.WriteString( LocalPlayer():SteamID() .. " " .. day:GetOptionText(day:GetSelectedID()) .. " " .. month:GetOptionText(month:GetSelectedID()) .. " " .. year:GetOptionText(year:GetSelectedID()) .. " " .. zodiac:GetOptionText(zodiac:GetSelectedID()))
+			net.WriteString( LocalPlayer():SteamID() .. " " .. age:GetOptionText( age:GetSelectedID() ) .. " " .. day:GetOptionText( day:GetSelectedID() ) .. " " .. month:GetOptionText( month:GetSelectedID() ) .. " " .. year:GetOptionText( year:GetSelectedID() ) .. " " .. zodiac:GetOptionText( zodiac:GetSelectedID()) )
 			net.SendToServer()
 			
 			ageCheckWindow:Remove()
@@ -150,6 +162,7 @@ end
 local function ageverify_loadLanguage()
 
 	if AGECHECK_LANGUAGE == "german" then
+		AGECHECK_AGE = "Alter"
 		AGECHECK_DAY = "Tag"
 		AGECHECK_MONTH = "Monat"
 		AGECHECK_YEAR = "Jahr"

@@ -1,6 +1,6 @@
 -- Made by Luk
 -- http://steamcommunity.com/id/doctorluk/
--- Version: 1.0
+-- Version: 1.1
 
 if SERVER then
 
@@ -22,7 +22,7 @@ function ageverify_checkAgeTable()
 	if sql.TableExists( "agecheck" ) then
 		ServerLog( "Age Verification: agecheck Table is existing!\n" )
 	else
-		local query = "CREATE TABLE agecheck ( id INTEGER PRIMARY KEY AUTOINCREMENT, steamid TEXT, name TEXT, day INTEGER, month INTEGER, year INTEGER, zodiac TEXT )"
+		local query = "CREATE TABLE agecheck ( id INTEGER PRIMARY KEY AUTOINCREMENT, steamid TEXT, name TEXT, age INTEGER, day INTEGER, month INTEGER, year INTEGER, zodiac TEXT )"
 		result = sql.Query( query )
 		ServerLog( "Age Verification: Creating Age Verification Table...\n" )
 		if sql.TableExists( "agecheck" ) then
@@ -167,6 +167,11 @@ function ageveryify_getSecondsUntilAge( day_, month_, year_ )
 	
 	local secondsLeft = secondsNeededTillAge - ( currentSeconds - playerSecondsSinceBirth ) + alittlerandomnessalwayshelps
 	
+	-- Make sure we still ban a person that will reach the age in e.g. 3 days where our randomness substracted 4 days
+	if secondsNeededTillAge < 345600 then
+		secondsLeft = 345600
+	end
+	
 	return secondsLeft
 	
 end
@@ -175,6 +180,13 @@ end
 function ageverify_isOldEnough( day, month, year )
 	
 	return ageverify_getAge( day, month, year ) >= AGECHECK_MINIMUM_AGE
+	
+end
+
+-- Check whether his entered age is matching his birthday
+function ageverify_isAgeMatching( age, day, month, year )
+
+	return age == math.floor( ageverify_getAge( day, month, year ) )
 	
 end
 
@@ -251,17 +263,18 @@ end
 function ageverify_isMatchingPreviousAnswers( data )
 
 	local sid = data[1]
-	local day = data[2]
-	local month = data[3]
-	local year = data[4]
-	local zodiac = data[5]
+	local age = data[2]
+	local day = data[3]
+	local month = data[4]
+	local year = data[5]
+	local zodiac = data[6]
 	
 	local previous = ageverify_getPreviousEntries( sid )
 	
 	if not previous then return true end
 	
 	for k,v in pairs( previous ) do
-		if previous[k].day ~= day or previous[k].month ~= month or previous[k].year ~= year or previous[k].zodiac ~= zodiac then
+		if previous[k].day ~= day or previous[k].age ~= age or previous[k].month ~= month or previous[k].year ~= year or previous[k].zodiac ~= zodiac then
 			return false
 		end
 	end
@@ -272,7 +285,7 @@ end
 
 -- Once a player enters his details, print the results to moderators or admins on the server who are allowed access to
 -- ulx seebirthdayentry
-function ageverify_notifyAdmins( ply, day, month, year, zodiac )
+function ageverify_notifyAdmins( ply, age, day, month, year, zodiac )
 	
 	local validZodiacColor = Color( 0, 255, 0, 255 )
 	local validZodiac = "[GOOD]"
@@ -282,17 +295,38 @@ function ageverify_notifyAdmins( ply, day, month, year, zodiac )
 		validZodiac = "[WRONG]"
 	end
 	
-	local ageColor = Color( 0, 255, 0, 255 )
-	local ageGood = ageverify_isOldEnough( day, month, year )
+	local ageColor_1 = Color( 0, 255, 0, 255 )
+	local ageGood_1 = age >= AGECHECK_MINIMUM_AGE
 	
-	if not ageGood then
-		ageColor = Color( 255, 0, 0, 255 )
+	if not ageGood_1 then
+		ageColor_1 = Color( 255, 0, 0, 255 )
+	end
+	
+	local ageColor_2 = Color( 0, 255, 0, 255 )
+	local ageGood_2 = math.floor( ageverify_getAge( day, month, year ) ) == age
+	
+	if not ageGood_2 then
+		ageColor_2 = Color( 255, 0, 0, 255 )
 	end
 
 	local players = player.GetAll()
 	for _, player in ipairs( players ) do
 		if ULib.ucl.query( player, "ulx seebirthdayentry" ) then
-			ULib.tsayColor( player, true, Color( 255, 0, 0, 255 ), "[CONFIDENTIAL] ", Color( 255, 255, 0, 255 ), "Player '", Color( 0, 255, 255, 255 ), ply:Nick(), Color( 255, 255, 0, 255 ), "'", Color( 255, 255, 0, 255 ), " -> Age: ",  ageColor, math.floor(ageverify_getAge( day, month, year )) .. "", Color( 255, 255, 0, 255 ), ", Date of Birth: ", Color( 0, 255, 0, 255 ), day .. "." .. month .. "." .. year, Color( 255, 255, 0, 255 ), ", ", Color( 0, 255, 0, 255 ), zodiac .. " ", validZodiacColor, validZodiac )
+			ULib.tsayColor( player, true, 
+			Color( 255, 0, 0, 255 	), "[CONFIDENTIAL] ", 
+			Color( 255, 255, 0, 255	), "Player '", 
+			Color( 0, 255, 255, 255	), ply:Nick(), 
+			Color( 255, 255, 0, 255	), "'", 
+			Color( 255, 255, 0, 255	), " -> Age: ", 
+			ageColor_1, age .. "", 
+			Color( 255, 255, 0, 255	), ", Date of Birth: ", 
+			Color( 0, 255, 0, 255	), day .. "." .. month .. "." .. year, 
+			Color( 255, 255, 0, 255	), " [", 
+			ageColor_2, math.floor( ageverify_getAge( day, month, year ) ) .. "", 
+			Color( 255, 255, 0, 255	), "] ", 
+			Color( 255, 255, 0, 255	), ", ", 
+			Color( 0, 255, 0, 255	), zodiac .. " ", 
+			validZodiacColor, validZodiac )
 		end
 	end
 	
@@ -300,6 +334,7 @@ end
 
 -- Print ban to chat
 function ageverify_reportBan( target_ply, banText, duration )
+
 	local time = " (#i minute(s))"
 	
 	if duration == 0 then 
@@ -308,16 +343,19 @@ function ageverify_reportBan( target_ply, banText, duration )
 		time = ""
 	end
 	
-	local str =  banText .. time
+	local str = banText .. time
 	ulx.fancyLogAdmin( target_ply, str, duration )
+	
 end
 
 function ageverify_doBan( ply, length, reason, admin_steamid )
+
 	if SBAN.Player_Ban then
 		SBAN.Player_Ban( ply, length, reason, admin_steamid )
 	else
 		RunConsoleCommand( "ulx", "banid", ply:SteamID(), length / 60, reason )
 	end
+	
 end
 
 -- This is the main logic behind all of it
@@ -327,17 +365,21 @@ function ageverify_addEntry( data )
 	local ply = player.GetBySteamID( data[1] )
 	
 	local sid = data[1]
-	local day = tonumber( data[2] )
-	local month = tonumber( data[3] )
-	local year = tonumber( data[4] )
-	local zodiac = data[5]
+	local age = tonumber( data[2] )
+	local day = tonumber( data[3] )
+	local month = tonumber( data[4] )
+	local year = tonumber( data[5] )
+	local zodiac = data[6]
 	
-	ageverify_notifyAdmins( ply, day, month, year, zodiac )
+	ageverify_notifyAdmins( ply, age, day, month, year, zodiac )
 	
 	if not ageverify_isZodiacValid( zodiac ) then return end
 	
 	print( "AgeverifyDebug: " .. ply:Nick() .. ", " .. ply:SteamID() .. " -> " .. day .. "." .. month .. "." .. year .. ", " .. zodiac )
 	
+	local length = 0
+	
+	-- Check for invalid dates first, this is the most ass-y way of entering birthdays
 	if not ageverify_isValidDate( day, month, year ) then
 		print( "AgeverifyDebug: INVALID DATE!" )
 		ageverify_reportBan( ply, AGECHECK_BAN_REASON_OTHER_WRONG_DATE, 0 )
@@ -345,14 +387,28 @@ function ageverify_addEntry( data )
 		return
 	end
 	
-	if not ageverify_isOldEnough( day, month, year ) then
+	-- Check whether the age entries of the player (age AND birthday) are okay
+	if age < AGECHECK_MINIMUM_AGE or math.floor( ageverify_getAge( day, month, year ) ) < AGECHECK_MINIMUM_AGE then
 		print( "AgeverifyDebug: TOO YOUNG!" )
-		local length = ageveryify_getSecondsUntilAge( day, month, year )
+		if age < ageverify_getAge( day, month, year ) then
+			length = AGECHECK_MINIMUM_AGE - age * 365 * 24 * 60 * 60 - ( 365 * 24 * 60 * 60 / 2 ) -- Statistically we expect the average time it will take for a player to reach the age to be half a year less than what is left in years, so if he is 1 year too young, we wait half a year. 3 years too young we wait 2.5 years etc.
+		else
+			length = ageveryify_getSecondsUntilAge( day, month, year ) -- If the birthday results in a lower age, we expect the birthday to be valid and ban him according to the duration of that
+		end
 		ageverify_reportBan( ply, AGECHECK_BAN_REASON_OTHER_TOO_YOUNG, -1 )
 		ageverify_doBan( ply, length, AGECHECK_BAN_REASON_TOO_YOUNG, AGECHECK_SBAN_STEAMID )
 		return
 	end
 	
+	-- Check whether the entered age and the entered birthday both result in the same age
+	if not ageverify_isAgeMatching( age, day, month, year ) then
+		print( "AgeverifyDebug: AGE MISMATCH!" )
+		ageverify_reportBan( ply, AGECHECK_BAN_REASON_OTHER_AGE_MISMATCH, -1 )
+		ageverify_doBan( ply, AGECHECK_DEFAULT_BAN_DURATION, AGECHECK_BAN_REASON_AGE_MISMATCH, AGECHECK_SBAN_STEAMID )
+		return
+	end
+	
+	-- Check for valid zodiac
 	if not ageverify_isValidZodiacDate( day, month, zodiac ) then
 		print( "AgeverifyDebug: INVALID ZODIAC!" )
 		ageverify_reportBan( ply, AGECHECK_BAN_REASON_OTHER_WRONG_ZODIAC, AGECHECK_DEFAULT_BAN_DURATION )
@@ -360,6 +416,7 @@ function ageverify_addEntry( data )
 		return
 	end
 	
+	-- Check for consistent answers
 	if not ageverify_isMatchingPreviousAnswers( data ) then
 		print( "AgeverifyDebug: DATA NOT PERSISTENT!" )
 		ageverify_reportBan( ply, AGECHECK_BAN_REASON_OTHER_DATA_NOT_PERSISTENT, AGECHECK_DEFAULT_BAN_DURATION )
@@ -461,5 +518,5 @@ net.Receive( "agecheck_onplayerconnect", function( len, ply )
 	ageverify_startCheck( player.GetBySteamID( steamid ), probability, shouldShow )
 
 	end )
-
+	
 end

@@ -1,6 +1,6 @@
 -- Made by Luk
 -- http://steamcommunity.com/id/doctorluk/
--- Version: 1.0
+-- Version: 1.1
 
 AGECHECK_LANGUAGE = "english" -- There's also german currently available
 
@@ -19,12 +19,14 @@ AGECHECK_BAN_REASON_WRONG_DATE = "The date you entered doesn't exist. You've bee
 AGECHECK_BAN_REASON_TOO_YOUNG = "You are not " .. AGECHECK_MINIMUM_AGE .. ", yet and are not allowed to play here. agvrfy_2"
 AGECHECK_BAN_REASON_WRONG_ZODIAC = "Your Zodiac is not at the date you entered, you've been banned for failing the test. agvrfy_3"
 AGECHECK_BAN_REASON_DATA_NOT_PERSISTENT = "Your previously entered data differs from the new. You've failed the test. agvrfy_4"
+AGECHECK_BAN_REASON_AGE_MISMATCH = "The age you entered does not match with the birthday. agvrfy_5"
 
 -- #A is a replacer for the banned player's name
 AGECHECK_BAN_REASON_OTHER_TOO_YOUNG = "#A was banned for not being " .. AGECHECK_MINIMUM_AGE .. " years of age, yet."
 AGECHECK_BAN_REASON_OTHER_WRONG_DATE = "#A was banned for entering an invalid date."
 AGECHECK_BAN_REASON_OTHER_WRONG_ZODIAC = "#A was banned for entering an invalid Zodiac and Date combination."
 AGECHECK_BAN_REASON_OTHER_DATA_NOT_PERSISTENT = "#A was banned due to inconsistent dates entered."
+AGECHECK_BAN_REASON_OTHER_AGE_MISMATCH = "#A was banned due to invalid age + birthday relation."
 
 -- The below will be taken if you've chosen 'english' at the top
 if AGECHECK_LANGUAGE == "english" then
