@@ -154,7 +154,7 @@ end
 
 -- Approximately calculating the amount of seconds it will take until this person is finally 
 -- in the age to join the server
--- To prevent publishing of people's birthdates on ban websites, we add or remove up to 4 days from the ban length
+-- To prevent publishing of people's birthdates on ban websites, we add up to 5 days from the ban length
 function ageveryify_getSecondsUntilAge( day_, month_, year_ )
 	
 	local currentSeconds = tonumber( os.time() )
@@ -163,13 +163,13 @@ function ageveryify_getSecondsUntilAge( day_, month_, year_ )
 	local leapdays = math.floor( AGECHECK_MINIMUM_AGE / 4 )
 	local leapdayCompensation = leapdays * 86400
 	local secondsNeededTillAge = AGECHECK_MINIMUM_AGE * 365 * 24 * 60 * 60 + leapdayCompensation
-	local alittlerandomnessalwayshelps = math.random( -345600, 345600 )
+	local alittlerandomnessalwayshelps = math.random( 432000 )
 	
 	local secondsLeft = secondsNeededTillAge - ( currentSeconds - playerSecondsSinceBirth ) + alittlerandomnessalwayshelps
 	
 	-- Make sure we still ban a person that will reach the age in e.g. 3 days where our randomness substracted 4 days
-	if secondsNeededTillAge < 345600 then
-		secondsLeft = 345600
+	if secondsNeededTillAge < 432000 then
+		secondsLeft = 432000
 	end
 	
 	return secondsLeft
@@ -390,7 +390,7 @@ function ageverify_addEntry( data )
 	-- Check whether the age entries of the player (age AND birthday) are okay
 	if age < AGECHECK_MINIMUM_AGE or not ageverify_isOldEnough( day, month, year ) then
 		print( "AgeverifyDebug: TOO YOUNG!" )
-		if age < ageverify_getAge( day, month, year ) then
+		if age < math.floor( ageverify_getAge( day, month, year ) ) then
 			length = ( ( AGECHECK_MINIMUM_AGE - age ) * 365 * 24 * 60 * 60 ) - ( 365 * 24 * 60 * 60 / 2 ) -- Statistically we expect the average time it will take for a player to reach the age to be half a year less than what is left in years, so if he is 1 year too young, we wait half a year. 3 years too young we wait 2.5 years etc.
 		else
 			length = ageveryify_getSecondsUntilAge( day, month, year ) -- If the birthday results in a lower age, we expect the birthday to be valid and ban him according to the duration of that
