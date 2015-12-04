@@ -428,7 +428,7 @@ function ageverify_addEntry( data )
 	local result = sql.Query( query )
 	
 	if not result or tonumber( result[1].checks ) < AGECHECK_MAXIMUM_TEST - 1 then
-		query = "INSERT INTO agecheck VALUES ( NULL, '" .. sid .. "', '" .. sql.SQLStr( ply:Nick(), true ) .. "', '" .. day .. "', '" .. month .. "', '" .. year .. "', '" .. zodiac .. "' )"
+		query = "INSERT INTO agecheck VALUES ( NULL, '" .. sid .. "', '" .. sql.SQLStr( ply:Nick(), true ) .. "', '" .. age .. "', '" .. day .. "', '" .. month .. "', '" .. year .. "', '" .. zodiac .. "' )"
 		result = sql.Query( query )
 	else
 		ageverify_flushEntriesFromSteamid( sid )
