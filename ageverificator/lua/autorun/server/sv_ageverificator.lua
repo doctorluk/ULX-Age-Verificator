@@ -274,7 +274,7 @@ function ageverify_isMatchingPreviousAnswers( data )
 	if not previous then return true end
 	
 	for k,v in pairs( previous ) do
-		if previous[k].day ~= day or previous[k].age ~= age or previous[k].month ~= month or previous[k].year ~= year or previous[k].zodiac ~= zodiac then
+		if previous[k].day ~= day or previous[k].month ~= month or previous[k].year ~= year or previous[k].zodiac ~= zodiac then
 			return false
 		end
 	end
