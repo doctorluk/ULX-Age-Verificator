@@ -62,61 +62,62 @@ function ageverify_isValidZodiacDate( day_, month_, zodiac )
 	local day = tonumber( day_ )
 	local month = tonumber( month_ )
 	
+	-- "Aries" / "Widder"
 	if zodiac == VALID_ZODIACS[1] then
 		if ( day >= 21 and month == 3 ) or ( day <= 20 and month == 4 ) then
 			return true
 		end
-
+	-- "Taurus" / "Stier"
 	elseif zodiac == VALID_ZODIACS[2] then
 		if ( day >= 21 and month == 4 ) or ( day <= 21 and month == 5 ) then
 			return true	
 		end
-
+	-- "Gemini" / "Zwillinge"
 	elseif zodiac == VALID_ZODIACS[3] then
-		if ( day >= 22 and month == 5 ) or ( day <= 21 and month == 6 ) then
+		if ( day >= 21 and month == 5 ) or ( day <= 21 and month == 6 ) then
 			return true
 		end
-
+	-- "Cancer" / "Krebs"
 	elseif zodiac == VALID_ZODIACS[4] then
 		if ( day >= 22 and month == 6 ) or ( day <= 22 and month == 7 ) then
 			return true
 		end
-
+	-- "Leo" / "Löwe"
 	elseif zodiac == VALID_ZODIACS[5] then
-		if ( day >= 23 and month == 7 ) or ( day <= 22 and month == 8 ) then
+		if ( day >= 23 and month == 7 ) or ( day <= 23 and month == 8 ) then
 			return true
 		end
-
+	-- "Virgo" / "Jungfrau"
 	elseif zodiac == VALID_ZODIACS[6] then
-		if ( day >= 23 and month == 8 ) or ( day <= 22 and month == 9 ) then
+		if ( day >= 23 and month == 8 ) or ( day <= 23 and month == 9 ) then
 			return true
 		end
-
+	-- "Libra" / "Waage"
 	elseif zodiac == VALID_ZODIACS[7] then
-		if ( day >= 23 and month == 9 ) or ( day <= 22 and month == 10 ) then
+		if ( day >= 23 and month == 9 ) or ( day <= 23 and month == 10 ) then
 			return true
 		end
-
+	-- "Scorpio" / "Skorpion"
 	elseif zodiac == VALID_ZODIACS[8] then
 		if ( day >= 23 and month == 10 ) or ( day <= 22 and month == 11 ) then
 			return true
 		end
-
+	-- "Saggitarius" / "Schütze"
 	elseif zodiac == VALID_ZODIACS[9] then
-		if ( day >= 23 and month == 11 ) or ( day <= 20 and month == 12 ) then
+		if ( day >= 23 and month == 11 ) or ( day <= 21 and month == 12 ) then
 			return true
 		end
-
+	-- "Capricornus" / "Steinbock"
 	elseif zodiac == VALID_ZODIACS[10] then
-		if ( day >= 21 and month == 12 ) or ( day <= 19 and month == 1 ) then
+		if ( day >= 21 and month == 12 ) or ( day <= 20 and month == 1 ) then
 			return true
 		end
-
+	-- "Aquarius" / "Wassermann"
 	elseif zodiac == VALID_ZODIACS[11] then
-		if ( day >= 20 and month == 1 ) or ( day <= 18 and month == 2 ) then
+		if ( day >= 20 and month == 1 ) or ( day <= 19 and month == 2 ) then
 			return true
 		end
-
+	-- "Pisces" / "Fische"
 	elseif zodiac == VALID_ZODIACS[12] then
 		if ( day >= 19 and month == 2 ) or ( day <= 20 and month == 3 ) then
 			return true
