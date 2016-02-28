@@ -15,8 +15,7 @@ util.AddNetworkString( "agecheck_send" )
 util.AddNetworkString( "agecheck_onplayerconnect" )
 util.AddNetworkString( "agecheck_checknecessity" )
 
--- We can't easily add the "date" column, so we have to cheat a bit by creating a second table, copy our stuff over and
--- insert the current time as "date" and then rename it back... genius
+-- Since we shift from multiple entries per STEAM-ID to single ones with timestamps, it's the easiest way to just create a new table
 function ageverify_upgradeAgeTable()
 
 	ServerLog( "[WARNING] Age Verification: FLUSHING agecheck DATABASE TO UPDATE TO THE LATEST DATABASE VERSION!\n" )
@@ -26,6 +25,7 @@ function ageverify_upgradeAgeTable()
 	
 end
 
+-- This simply deletes entries older than a month
 function ageverify_cleanupTable()
 
 	ServerLog( "Age Verification: Performing cleanup of old entries...\n" )
@@ -98,6 +98,7 @@ end
 
 -- This is a painful function that checks if the day and month entered matches
 -- the zodiac sign, credits to Heady for making it
+-- It overlaps sometimes due to the fact that multiple online sources round off the days differently
 function ageverify_isValidZodiacDate( day_, month_, zodiac )
 	local day = tonumber( day_ )
 	local month = tonumber( month_ )
@@ -208,7 +209,7 @@ function ageveryify_getSecondsUntilAge( day_, month_, year_ )
 	
 	local secondsLeft = secondsNeededTillAge - ( currentSeconds - playerSecondsSinceBirth ) + alittlerandomnessalwayshelps
 	
-	-- Make sure we still ban a person that will reach the age in e.g. 3 days where our randomness substracted 4 days
+	-- Ban someone at least for 5 days to prevent silly ban times
 	if secondsNeededTillAge < 432000 then
 		secondsLeft = 432000
 	end
@@ -217,7 +218,7 @@ function ageveryify_getSecondsUntilAge( day_, month_, year_ )
 	
 end
 
--- That should be easy to understand, isn't it?
+-- That should be easy to understand, shouldn't it?
 function ageverify_isOldEnough( day, month, year )
 	
 	return ageverify_getAge( day, month, year ) >= AGECHECK_MINIMUM_AGE
@@ -253,7 +254,7 @@ function ageverify_getAge( day_, month_, year_ )
 	
 end
 
--- Checks whether a player is required to be tested by the amount of tests he has done
+-- Checks whether a player is required to be tested by checking the whitelist
 function ageverify_needsToBeTested( sid )
 
 	local query = "SELECT * FROM agecheck_done WHERE steamid='" .. sid .. "'"
@@ -270,7 +271,7 @@ function ageverify_needsToBeTested( sid )
 	end
 end
 
--- These functions below should be easy to understand
+-- Gets a player's previous entry data
 function ageverify_getPreviousEntry( sid )
 
 	local query = "SELECT * FROM agecheck WHERE steamid='" .. sid .. "'"
@@ -280,6 +281,7 @@ function ageverify_getPreviousEntry( sid )
 	
 end
 
+-- Deletes player's entry from the agecheck database
 function ageverify_flushEntriesFromSteamid( sid )
 
 	local query = "DELETE FROM agecheck WHERE steamid='" .. sid .. "'"
@@ -287,6 +289,7 @@ function ageverify_flushEntriesFromSteamid( sid )
 	
 end
 
+-- Empties the agecheck database
 function ageverify_flushAllEntries( )
 
 	local query = "DELETE FROM agecheck"
@@ -294,6 +297,7 @@ function ageverify_flushAllEntries( )
 	
 end
 
+-- Empties the whitelist
 function ageverify_flushAllDoneEntries( )
 
 	local query = "DELETE FROM agecheck_done"
@@ -301,7 +305,33 @@ function ageverify_flushAllDoneEntries( )
 	
 end
 
--- Check if any of the newly entered data matches all previously entered data
+-- Gets all active entries in the agecheck database
+function ageverify_getAgecheckCount( )
+
+	local query = "SELECT COUNT(*) as count FROM agecheck"
+	result = sql.Query( query )
+	if result then 
+		return result[1].count
+	else 
+		return 0
+	end
+	
+end
+
+-- Gets all whitelist entries in the agecheck_done database
+function ageverify_getAgecheckWhitelistCount( )
+
+	local query = "SELECT COUNT(*) as count FROM agecheck_done"
+	result = sql.Query( query )
+	if result then 
+		return result[1].count
+	else 
+		return 0
+	end
+	
+end
+
+-- Check if all of the newly entered data matches all previously entered data
 function ageverify_isMatchingPreviousAnswer( data )
 
 	local sid = data[1]
@@ -388,6 +418,7 @@ function ageverify_reportBan( target_ply, banText, duration )
 	
 end
 
+-- Forward ban to Sourcebans if installed, otherwise ban via ULX
 function ageverify_doBan( ply, length, reason, admin_steamid )
 
 	if SBAN.Player_Ban then
@@ -464,15 +495,19 @@ function ageverify_addEntry( data )
 		return
 	end
 	
+	-- Check the amount of checks there have been for this player
 	local query = "SELECT times FROM agecheck WHERE steamid='" .. sid .. "'"
 	local result = sql.Query( query )
 	
+	-- If there were not checks before, we add the first
 	if not result then
 		query = "INSERT INTO agecheck VALUES ( NULL, 1, '" .. sid .. "', '" .. sql.SQLStr( ply:Nick(), true ) .. "', '" .. age .. "', '" .. day .. "', '" .. month .. "', '" .. year .. "', '" .. zodiac .. "', CURRENT_TIMESTAMP )"
 		result = sql.Query( query )
+	-- If there were at least one entry, we increment the amount of times this person was tested and update the date
 	elseif tonumber( result[1].times ) < AGECHECK_MAXIMUM_TEST then
 		query = "UPDATE agecheck SET times=times+1, date=CURRENT_TIMESTAMP WHERE steamid='" .. sid .. "'"
 		result = sql.Query( query )
+	-- If the person has reached the amount of maximum tests, his data is removed and he's added to the whitelist
 	else
 		ageverify_flushEntriesFromSteamid( sid )
 		
