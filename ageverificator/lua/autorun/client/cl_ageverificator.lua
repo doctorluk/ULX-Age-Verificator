@@ -1,6 +1,6 @@
 -- Made by Luk
 -- http://steamcommunity.com/id/doctorluk/
--- Version: 1.1
+-- Version: 1.2
 
 if CLIENT then
 
@@ -186,7 +186,7 @@ net.Receive( "agecheck_checknecessity", function( len )
 	local shouldShow = net.ReadString()
 	local probability = net.ReadFloat()
 	
-	if math.random() < probability and shouldShow == "true" then
+	if math.random(100) < probability and shouldShow == "true" then
 		ageverify_loadLanguage()
 		ageverify_runAgeCheck()
 	end

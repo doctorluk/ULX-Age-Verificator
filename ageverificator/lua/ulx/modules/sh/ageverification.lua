@@ -1,6 +1,6 @@
 -- Made by Luk
 -- http://steamcommunity.com/id/doctorluk/
--- Version: 1.1
+-- Version: 1.2
 
 local CATEGORY = "Age Verificator"
 
@@ -47,7 +47,7 @@ function ulx.showbirthdaytest ( calling_ply, target_plys )
 	for i = 1, #target_plys do
 		local target_pl = target_plys[ i ]
 		
-		ageverify_startCheck( target_pl, 1.0, "true" )
+		ageverify_startCheck( target_pl, 100, "true" )
 		
 		ulx.fancyLogAdmin( calling_ply, "#A forced #T to fill out the birthday form", target_pl )
 	end

@@ -1,6 +1,6 @@
 -- Made by Luk
 -- http://steamcommunity.com/id/doctorluk/
--- Version: 1.1
+-- Version: 1.2
 
 if SERVER then
 
@@ -15,21 +15,59 @@ util.AddNetworkString( "agecheck_send" )
 util.AddNetworkString( "agecheck_onplayerconnect" )
 util.AddNetworkString( "agecheck_checknecessity" )
 
+-- We can't easily add the "date" column, so we have to cheat a bit by creating a second table, copy our stuff over and
+-- insert the current time as "date" and then rename it back... genius
+function ageverify_upgradeAgeTable()
+
+	ServerLog( "[WARNING] Age Verification: FLUSHING agecheck DATABASE TO UPDATE TO THE LATEST DATABASE VERSION!\n" )
+	
+	local query = "DROP TABLE agecheck; CREATE TABLE agecheck ( id INTEGER PRIMARY KEY AUTOINCREMENT, times INTEGER, steamid TEXT, name TEXT, age INTEGER, day INTEGER, month INTEGER, year INTEGER, zodiac TEXT, date DATETIME DEFAULT CURRENT_TIMESTAMP )"
+	local result = sql.Query( query )
+	
+end
+
+function ageverify_cleanupTable()
+
+	ServerLog( "Age Verification: Performing cleanup of old entries...\n" )
+	
+	local query = "DELETE FROM agecheck WHERE date <= datetime('now', '-1 month')"
+	local result = sql.Query( query )
+	
+end
+
 -- This function was taken from the AWarn 2 plugin here: http://forums.ulyssesmod.net/index.php/topic,7125.0.html
 -- It's nice to alter existing functions for your own purpose. I've got no idea of LUA and doing stuff from scratch is hard sometimes
 function ageverify_checkAgeTable()
 	-- Check existance and/or create the table that will hold the entered data
 	if sql.TableExists( "agecheck" ) then
 		ServerLog( "Age Verification: agecheck Table is existing!\n" )
+		
+		-- Add date column if not exists
+		-- Get table info
+		local query = "PRAGMA table_info(agecheck)"
+		local result = sql.Query( query )
+		local addDate = true
+		
+		-- Check if column 'date' is in there, if not we add it
+		for k, v in pairs( result ) do
+			if v["name"] == "date" then
+				addDate = false
+			end
+		end
+		
+		if addDate then
+			ageverify_upgradeAgeTable()
+		end
+		
 	else
-		local query = "CREATE TABLE agecheck ( id INTEGER PRIMARY KEY AUTOINCREMENT, steamid TEXT, name TEXT, age INTEGER, day INTEGER, month INTEGER, year INTEGER, zodiac TEXT )"
+		local query = "CREATE TABLE agecheck ( id INTEGER PRIMARY KEY AUTOINCREMENT, times INTEGER, steamid TEXT, name TEXT, age INTEGER, day INTEGER, month INTEGER, year INTEGER, zodiac TEXT, date DATETIME DEFAULT CURRENT_TIMESTAMP )"
 		result = sql.Query( query )
 		ServerLog( "Age Verification: Creating Age Verification Table...\n" )
 		if sql.TableExists( "agecheck" ) then
 			ServerLog( "Age Verification: Age Verification Table created sucessfully.\n" )
 		else
-			ServerLog( "Age Verification: Trouble creating the Age Verification Table\n" )
-			ServerLog( "Age Verification: " .. sql.LastError( result ).."\n" )
+			ServerLog( "[ERROR] Age Verification: Trouble creating the Age Verification Table\n" )
+			ServerLog( "[ERROR] Age Verification: " .. sql.LastError( result ).."\n" )
 		end
 	end
 	
@@ -43,10 +81,12 @@ function ageverify_checkAgeTable()
 		if sql.TableExists( "agecheck" ) then
 			ServerLog( "Age Verification: Age Verification Done Table created sucessfully.\n" )
 		else
-			ServerLog( "Age Verification: Trouble creating the Age Verification Done Table\n" )
-			ServerLog( "Age Verification: " .. sql.LastError( result ).."\n" )
+			ServerLog( "[ERROR] Age Verification: Trouble creating the Age Verification Done Table\n" )
+			ServerLog( "[ERROR] Age Verification: " .. sql.LastError( result ).."\n" )
 		end
 	end
+	
+	ageverify_cleanupTable()
 end
 hook.Add( "Initialize", "age_check_init", ageverify_checkAgeTable )
 
@@ -221,16 +261,17 @@ function ageverify_needsToBeTested( sid )
 	
 	if result then return AGECHECK_MAXIMUM_TEST end
 	
-	local count = ageverify_getPreviousEntries( sid )
-	if not count then
+	local wasTested = ageverify_getPreviousEntry( sid )
+	
+	if wasTested then
+		return 1
+	else
 		return 0
 	end
-
-	return #count
 end
 
 -- These functions below should be easy to understand
-function ageverify_getPreviousEntries( sid )
+function ageverify_getPreviousEntry( sid )
 
 	local query = "SELECT * FROM agecheck WHERE steamid='" .. sid .. "'"
 	result = sql.Query( query )
@@ -261,7 +302,7 @@ function ageverify_flushAllDoneEntries( )
 end
 
 -- Check if any of the newly entered data matches all previously entered data
-function ageverify_isMatchingPreviousAnswers( data )
+function ageverify_isMatchingPreviousAnswer( data )
 
 	local sid = data[1]
 	local age = data[2]
@@ -270,14 +311,12 @@ function ageverify_isMatchingPreviousAnswers( data )
 	local year = data[5]
 	local zodiac = data[6]
 	
-	local previous = ageverify_getPreviousEntries( sid )
+	local previous = ageverify_getPreviousEntry( sid )
 	
 	if not previous then return true end
-	
-	for k,v in pairs( previous ) do
-		if previous[k].day ~= day or previous[k].month ~= month or previous[k].year ~= year or previous[k].zodiac ~= zodiac then
-			return false
-		end
+
+	if previous[1].day ~= day or previous[1].month ~= month or previous[1].year ~= year or previous[1].zodiac ~= zodiac then
+		return false
 	end
 	
 	return true
@@ -418,18 +457,21 @@ function ageverify_addEntry( data )
 	end
 	
 	-- Check for consistent answers
-	if not ageverify_isMatchingPreviousAnswers( data ) then
+	if not ageverify_isMatchingPreviousAnswer( data ) then
 		print( "AgeverifyDebug: DATA NOT PERSISTENT!" )
 		ageverify_reportBan( ply, AGECHECK_BAN_REASON_OTHER_DATA_NOT_PERSISTENT, AGECHECK_DEFAULT_BAN_DURATION )
 		ageverify_doBan( ply, AGECHECK_DEFAULT_BAN_DURATION, AGECHECK_BAN_REASON_DATA_NOT_PERSISTENT, AGECHECK_SBAN_STEAMID )
 		return
 	end
 	
-	local query = "SELECT COUNT(*) as checks FROM agecheck WHERE steamid='" .. sid .. "'"
+	local query = "SELECT times FROM agecheck WHERE steamid='" .. sid .. "'"
 	local result = sql.Query( query )
 	
-	if not result or tonumber( result[1].checks ) < AGECHECK_MAXIMUM_TEST - 1 then
-		query = "INSERT INTO agecheck VALUES ( NULL, '" .. sid .. "', '" .. sql.SQLStr( ply:Nick(), true ) .. "', '" .. age .. "', '" .. day .. "', '" .. month .. "', '" .. year .. "', '" .. zodiac .. "' )"
+	if not result then
+		query = "INSERT INTO agecheck VALUES ( NULL, 1, '" .. sid .. "', '" .. sql.SQLStr( ply:Nick(), true ) .. "', '" .. age .. "', '" .. day .. "', '" .. month .. "', '" .. year .. "', '" .. zodiac .. "', CURRENT_TIMESTAMP )"
+		result = sql.Query( query )
+	elseif tonumber( result[1].times ) < AGECHECK_MAXIMUM_TEST then
+		query = "UPDATE agecheck SET times=times+1, date=CURRENT_TIMESTAMP WHERE steamid='" .. sid .. "'"
 		result = sql.Query( query )
 	else
 		ageverify_flushEntriesFromSteamid( sid )
