@@ -1,6 +1,7 @@
 -- Made by Luk
 -- http://steamcommunity.com/id/doctorluk/
--- Version: 1.2
+-- Version: 1.3
+-- https://github.com/doctorluk/ULX-Age-Verificator
 
 if SERVER then
 

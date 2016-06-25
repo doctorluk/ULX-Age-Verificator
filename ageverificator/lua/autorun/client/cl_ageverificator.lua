@@ -1,8 +1,45 @@
 -- Made by Luk
 -- http://steamcommunity.com/id/doctorluk/
--- Version: 1.2
+-- Version: 1.3
+-- https://github.com/doctorluk/ULX-Age-Verificator
 
 if CLIENT then
+
+surface.CreateFont( "Agetest_title", {
+	font = "Consolas",
+	extended = false,
+	size = 22,
+	weight = 1000,
+	blursize = 0,
+	scanlines = 0,
+	antialias = true,
+	underline = false,
+	italic = false,
+	strikeout = false,
+	symbol = false,
+	rotary = false,
+	shadow = true,
+	additive = false,
+	outline = false,
+} )
+
+surface.CreateFont( "Agetest_form_title", {
+	font = "Consolas",
+	extended = false,
+	size = 20,
+	weight = 20,
+	blursize = 0,
+	scanlines = 0,
+	antialias = true,
+	underline = false,
+	italic = false,
+	strikeout = false,
+	symbol = false,
+	rotary = false,
+	shadow = false,
+	additive = false,
+	outline = false,
+} )
 
 -- DEFAULT SETTINGS, just in case something goes horribly wrong
 AGECHECK_LANGUAGE = "english"
@@ -32,58 +69,89 @@ local function ageverify_runAgeCheck()
 	
 	-- Top title
 	ageCheckWindow = vgui.Create( "DFrame" )
-	ageCheckWindow:SetSize( 600, 350 )
+	ageCheckWindow:SetSize( ScrW() * 0.6 , ScrH() * 0.6 )
+	-- Test resolutions:
+	-- ageCheckWindow:SetSize( 640,480 )
+	-- ageCheckWindow:SetSize( 800,600 )
+	-- ageCheckWindow:SetSize( 1280, 720 )
+	-- ageCheckWindow:SetSize( 1600,1024 )
+	ageCheckWindow:SetMinimumSize( 640, 480 )
 	ageCheckWindow:Center()
 	ageCheckWindow:SetTitle( AGECHECK_TITLE )
 	ageCheckWindow:SetVisible( true )
-	ageCheckWindow:SetDraggable( false )
-	ageCheckWindow:ShowCloseButton( false )
+	ageCheckWindow:SetDraggable( true )
+	ageCheckWindow:ShowCloseButton( true )
 	ageCheckWindow:SetDeleteOnClose( true )
-	-- ageCheckWindow:SetBackgroundBlur( true )
 	ageCheckWindow:MakePopup()
+	ageCheckWindow.Paint = function( self, w, h ) -- 'function Frame:Paint( w, h )' works too
+		draw.RoundedBox( 5, 0, 0, w, h, Color( 100, 100, 120, 250 ) )
+	end
 	
-	-- Top Text
-	top_greeting = vgui.Create( "DTextEntry", ageCheckWindow )
-	top_greeting:SetPos( 150, 35 )
-	top_greeting:SetSize( 500, 100 )
-	top_greeting:SetText( AGECHECK_TOP_TEXT_ONE )
-	top_greeting:SetTextColor(Color(255, 255, 255, 255));		
-	top_greeting:SetDrawBackground( false )
-	top_greeting:SetDrawBorder( false )
-	top_greeting:SetEditable( false )
-	top_greeting:SetMultiline( true )
+	local fullX, fullY = ageCheckWindow:GetSize()
 	
-	-- Text below Top Text
-	top_description = vgui.Create( "DTextEntry", ageCheckWindow )
-	top_description:SetPos( 150, 55 )
-	top_description:SetSize( 500, 100 )
-	top_description:SetText( AGECHECK_TOP_TEXT_TWO )
-	top_description:SetTextColor( Color( 255, 255, 255, 255 ) );		
-	top_description:SetDrawBackground( false )
-	top_description:SetDrawBorder( false )
-	top_description:SetEditable( false )
-	top_description:SetMultiline( true )
 	
-	-- Text right above the available choices
-	label_choices = vgui.Create( "DTextEntry", ageCheckWindow )
-	label_choices:SetPos( 50, 105 )
-	label_choices:SetSize( 500, 35 )
-	label_choices:SetText( AGECHECK_FORM_TITLE )
-	label_choices:SetTextColor( Color( 255, 255, 255, 255 ) );		
-	label_choices:SetDrawBackground( false )
-	label_choices:SetDrawBorder( false )
-	label_choices:SetEditable( false )
-	label_choices:SetMultiline( true )
+	-- Topmost headline
+	top_greeting = vgui.Create( "DPanel", ageCheckWindow )
+	local padding_sides = 20
+	top_greeting:SetSize( fullX - padding_sides, 100 )
+	top_greeting:Center()
+	top_greeting:SetPos(top_greeting:GetPos(1), 0)
+	local w, h = top_greeting:GetSize()
+	local x, y = top_greeting:GetPos()
+	top_greeting:SetWrap(true)
+	top_greeting.Paint = function()
+		draw.RoundedBox( 20, x, 25, fullX - (2 * padding_sides), 75, Color( 150, 150, 170, 250 ) )
+		draw.SimpleTextOutlined( AGECHECK_TOP_TEXT_ONE, "Agetest_title", w / 2, h / 2, Color( 255, 255, 255, 255 ), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, Color( 10, 10, 10, 255 ) )
+	end
+	
+	-- Text below headline
+	top_description = vgui.Create( "DPanel", ageCheckWindow )
+	top_description:SetSize( 600, 150 )
+	top_description:Center()
+	top_description:SetPos(top_description:GetPos(1), 0)
+	local w, h = top_description:GetSize()
+	top_description:SetWrap(true)
+	top_description.Paint = function()
+		draw.SimpleTextOutlined( AGECHECK_TOP_TEXT_TWO, "Trebuchet18", w / 2, h / 2, Color( 255, 255, 255, 255 ), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, Color( 10, 10, 10, 255 ) )
+	end
+	
+	-- Headline for the formula
+	form_title = vgui.Create( "DPanel", ageCheckWindow )
+	form_title:SetSize( 600, 150 )
+	form_title:Center()
+	form_title:SetPos(fullX * 0.5 - 300, fullY * 0.11)
+	local w, h = form_title:GetSize()
+	form_title:SetWrap(true)
+	form_title.Paint = function()
+		draw.SimpleTextOutlined( AGECHECK_FORM_TITLE, "Agetest_form_title", w / 2, h / 2, Color( 255, 255, 255, 255 ), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, Color( 10, 10, 10, 255 ) )
+	end
+	
+	-- Disclaimer Background
+	disclaimer_bg = vgui.Create( "DPanel", ageCheckWindow )
+	if fullY == 480 then
+		disclaimer_bg:SetSize( 10 + fullX * 0.9, 50 + 500 / (0.02 * fullY) )
+	else
+		disclaimer_bg:SetSize( 10 + fullX * 0.9, 50 + 700 / (0.03 * fullY) )
+	end
+	disclaimer_bg:SetPos( fullX * 0.05, fullY * 0.75 - 5 )
+	disclaimer_bg.Paint = function()
+		draw.RoundedBox( 5, 0, 0, fullX * 0.9, 50 + 1000 / (0.02 * fullY), Color( 60, 60, 75, 250 ) )
+	end
 	
 	-- Disclaimer at the bottom
 	bottom_disclaimer = vgui.Create( "DTextEntry", ageCheckWindow )
-	bottom_disclaimer:SetPos( 40, 300 )
-	bottom_disclaimer:SetSize( 520, 50 )
+	local w, h = disclaimer_bg:GetSize()
+	local x, y = disclaimer_bg:GetPos()
+	local disclaimer_padding = 5
+	bottom_disclaimer:SetPos( x + disclaimer_padding, y )
+	-- bottom_disclaimer:Center()
+	bottom_disclaimer:SetSize( w - (2 * disclaimer_padding), h )
 	bottom_disclaimer:SetText( AGECHECK_DISCLAIMER )
-	bottom_disclaimer:SetTextColor( Color( 255, 255, 0, 255 ) );		
+	bottom_disclaimer:SetTextColor( Color( 200, 200, 0, 255 ) );		
 	bottom_disclaimer:SetDrawBackground( false )
 	bottom_disclaimer:SetDrawBorder( false )
 	bottom_disclaimer:SetEditable( false )
+	bottom_disclaimer:SetFont( "Trebuchet18" )
 	bottom_disclaimer:SetMultiline( true )
 
 	
@@ -92,8 +160,10 @@ local function ageverify_runAgeCheck()
 	-- AGE
 	local age = vgui.Create( "DComboBox" )
 	age:SetParent( ageCheckWindow )
-	age:SetPos( 250, 130 )
-	age:SetSize( 100, 20 )
+	age:Center()
+	-- age:SetPos( 250, 130 )
+	age:SetPos( fullX * 0.5 - 65, fullY * 0.3 )
+	age:SetSize( 130, 30 )
 	age:SetValue( AGECHECK_AGE )
 	for i = 1, 99, 1 do
 		age:AddChoice( i )
@@ -102,8 +172,9 @@ local function ageverify_runAgeCheck()
 	-- DAY
 	local day = vgui.Create( "DComboBox" )
 	day:SetParent( ageCheckWindow ) -- Set parent to our "DermaPanel"
-	day:SetPos( 100, 165 )
-	day:SetSize( 100, 20 )
+	day:Center()
+	day:SetPos( fullX * 0.25 - 65, fullY * 0.4 )
+	day:SetSize( 130, 30 )
 	day:SetValue( AGECHECK_DAY )
 	for i = 1, 31, 1 do
 		day:AddChoice( i )
@@ -112,8 +183,9 @@ local function ageverify_runAgeCheck()
 	-- MONTH
 	local month = vgui.Create( "DComboBox" )
 	month:SetParent( ageCheckWindow )
-	month:SetPos( 250, 165 )
-	month:SetSize( 100, 20 )
+	month:Center()
+	month:SetPos( fullX * 0.5 - 65, fullY * 0.4 )
+	month:SetSize( 130, 30 )
 	month:SetValue( AGECHECK_MONTH )
 	for i = 1, 12, 1 do
 		month:AddChoice( i )
@@ -122,8 +194,9 @@ local function ageverify_runAgeCheck()
 	-- YEAR
 	local year = vgui.Create( "DComboBox" )
 	year:SetParent( ageCheckWindow )
-	year:SetPos( 400, 165 )
-	year:SetSize( 100, 20 )
+	year:Center()
+	year:SetPos( fullX * 0.75 - 65, fullY * 0.4 )
+	year:SetSize( 130, 30 )
 	year:SetValue( AGECHECK_YEAR )
 	for i = 1900, 2015, 1 do
 		year:AddChoice( i )
@@ -132,19 +205,35 @@ local function ageverify_runAgeCheck()
 	-- ZODIAC SIGN
 	local zodiac = vgui.Create( "DComboBox" )
 	zodiac:SetParent( ageCheckWindow )
-	zodiac:SetPos( 250, 200 )
-	zodiac:SetSize( 100, 20 )
+	zodiac:Center()
+	zodiac:SetPos( fullX * 0.5 - 65, fullY * 0.5 )
+	zodiac:SetSize( 130, 30 )
 	zodiac:SetValue( AGECHECK_ZODIAC )
 	for i = 1, #AGECHECK_ZODIACS, 1 do
 		zodiac:AddChoice( AGECHECK_ZODIACS[i] )
+	end
+	
+	-- SEND BORDER
+	local send_border = vgui.Create( "DButton" )
+	send_border:SetParent( ageCheckWindow )
+	send_border:Center()
+	send_border:SetPos( fullX * 0.5 - 70, fullY * 0.61 - 5 )
+	send_border:SetSize( 140, 55 )
+	send_border.Paint = function( self, w, h )
+		draw.RoundedBox( 5, 0, 0, w, h, Color( 30, 30, 30, 255 ) ) -- Draw a blue button
 	end
 	
 	-- SEND BUTTON
 	local send = vgui.Create( "DButton" )
 	send:SetParent( ageCheckWindow )
 	send:SetText( AGECHECK_SUBMIT )
-	send:SetPos( 250, 250 )
-	send:SetSize( 100, 30 )
+	send:Center()
+	send:SetPos( fullX * 0.5 - 65, fullY * 0.61 )
+	send:SetSize( 130, 45 )
+	send:SetTextColor( Color( 255, 255, 255, 255 ) );
+	send.Paint = function( self, w, h )
+		draw.RoundedBox( 5, 0, 0, w, h, Color( 41, 128, 185, 255 ) ) -- Draw a blue button
+	end
 	send.DoClick = function ()
 		if age:GetSelectedID() and day:GetSelectedID() and month:GetSelectedID() and year:GetSelectedID() and zodiac:GetSelectedID() then
 			net.Start( "agecheck_send" )

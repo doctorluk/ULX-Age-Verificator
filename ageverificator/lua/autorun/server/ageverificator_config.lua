@@ -1,6 +1,7 @@
 -- Made by Luk
 -- http://steamcommunity.com/id/doctorluk/
--- Version: 1.2
+-- Version: 1.3
+-- https://github.com/doctorluk/ULX-Age-Verificator
 
 AGECHECK_LANGUAGE = "english" -- There's also german currently available
 
@@ -35,8 +36,8 @@ if AGECHECK_LANGUAGE == "english" then
 	AGECHECK_TOP_TEXT_ONE = [[Be welcome at SERVERNAME!]] 
 	AGECHECK_TOP_TEXT_TWO = [[If you submit lies, you might get banned!]]
 	AGECHECK_FORM_TITLE = [[Please enter your Date Of Birth and Zodiac Sign:]]
-	AGECHECK_DISCLAIMER = [[PRIVACY:
-YOUR DATA IS BEING PROCESSED AUTOMATICALLY AND NOT SHARED WITH THIRD-PARTIES]] -- You can input new lines here, too
+	AGECHECK_DISCLAIMER = [[DISCLAIMER / PRIVACY:
+	PLEASE CONFIGURE YOUR DISCLAIMER ACCORDINGLY]] -- You can input new lines here, too
 	
 	-- I DO NOT RECOMMEND CHANGING THEM! THE ORDER IS FIXED TO THE DATE OF EACH ZODIAC SIGN
 	AGECHECK_ZODIACS = {"Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Saggitarius", "Capricornus", "Aquarius", "Pisces"}
@@ -47,9 +48,9 @@ elseif AGECHECK_LANGUAGE == "german" then
 	AGECHECK_TITLE = [[Formular zur automatisierten Sammlung von Geburtsdaten]]
 	AGECHECK_TOP_TEXT_ONE = [[Herzlich Willkommen auf SERVERNAME!]]
 	AGECHECK_TOP_TEXT_TWO = [[Solltest du in diesen Angaben lügen, dann wirst du gebannt.]]
-	AGECHECK_FORM_TITLE = [[Bitte gib Dein Geburtsdatum und Dein Sternzeichen ein:]]
-	AGECHECK_DISCLAIMER = [[DATENSCHUTZ:
-DIESE DATEN WERDEN AUTOMATISCH VERARBEITET UND WERDEN NICHT AN DRITTE WEITERGEGEBEN]]
+	AGECHECK_FORM_TITLE = [[Bitte gib dein Geburtsdatum und dein Sternzeichen ein:]]
+	AGECHECK_DISCLAIMER = [[DISCLAIMER / DATENSCHUTZ:
+	Durch Drücken auf 'Senden' erklärst du dich einverstanden, dass die eingegebenen Daten im Moment der Eingabe für die anwesenden Teammitglieder sichtbar und für die Dauer von maximal 30 Tagen gespeichert werden. Die Daten werden nicht an Dritte weitergegeben. Bitte verlasse den Server, wenn du nicht einverstanden bist.]]
 	
 	-- I DO NOT RECOMMEND CHANGING THEM! THE ORDER IS FIXED TO THE DATE OF EACH ZODIAC SIGN
 	AGECHECK_ZODIACS = {"Widder", "Stier", "Zwillinge", "Krebs", "Loewe", "Jungfrau", "Waage", "Skorpion", "Schuetze", "Steinbock", "Wassermann", "Fische"}

@@ -1,6 +1,7 @@
 -- Made by Luk
 -- http://steamcommunity.com/id/doctorluk/
--- Version: 1.2
+-- Version: 1.3
+-- https://github.com/doctorluk/ULX-Age-Verificator
 
 local CATEGORY = "Age Verificator"
 
@@ -48,7 +49,7 @@ function ulx.showactiveagecheckentries ( calling_ply )
 end
 local showactiveagecheckentries = ulx.command( CATEGORY, "ulx agactive", ulx.showactiveagecheckentries, "!agactive" )
 showactiveagecheckentries:defaultAccess( ULib.ACCESS_ADMIN )
-showactiveagecheckentries:help( "Flushes all entered Birthday-Checks for the selected SteamID" )
+showactiveagecheckentries:help( "Shows the amount of currently pending agechecks inside the database in chat." )
 
 -- Displays the current amount of whitelist entries in chat
 function ulx.showwhitelistagecheckentries ( calling_ply )
@@ -64,7 +65,7 @@ function ulx.showwhitelistagecheckentries ( calling_ply )
 end
 local showwhitelistagecheckentries = ulx.command( CATEGORY, "ulx agwhitelist", ulx.showwhitelistagecheckentries, "!agwhitelist" )
 showwhitelistagecheckentries:defaultAccess( ULib.ACCESS_ADMIN )
-showwhitelistagecheckentries:help( "Flushes all entered Birthday-Checks for the selected SteamID" )
+showwhitelistagecheckentries:help( "Shows the amount of whitelisted players inside the database in chat" )
 
 -- Removes active entry of given player
 function ulx.flushbirthday ( calling_ply, target_plys )

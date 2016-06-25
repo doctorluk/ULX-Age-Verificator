@@ -1,6 +1,6 @@
 # ULX-Age-Verificator
 ## What it is for
-This plugin can be installed on Garry's Mod servers to help you to keep minors from your server
+This plugin can be installed on Garry's Mod servers to help you keep minors from your server
 
 ## What it does
 It shows new players a form in which they have to enter their Date of Birth and the matching Zodiac Sign. If they are below your configured age, they are being banned approx. until they turn that age.
