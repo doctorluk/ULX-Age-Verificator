@@ -1,4 +1,6 @@
 # ULX-Age-Verificator
+![Age Verificator Screenshot](https://cloud.githubusercontent.com/assets/6282654/16805284/abf641c2-490f-11e6-9b32-28b362c16f26.png)
+
 ## What it is for
 This plugin can be installed on Garry's Mod servers to help you keep minors from your server
 
