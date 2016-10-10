@@ -165,8 +165,9 @@ local function ageverify_runAgeCheck()
 	age:SetPos( fullX * 0.5 - 65, fullY * 0.3 )
 	age:SetSize( 130, 30 )
 	age:SetValue( AGECHECK_AGE )
+	age:SetSortItems( false )
 	for i = 1, 99, 1 do
-		age:AddChoice( i )
+		age:AddChoice( i .. "" )
 	end
 	
 	-- DAY
@@ -176,8 +177,9 @@ local function ageverify_runAgeCheck()
 	day:SetPos( fullX * 0.25 - 65, fullY * 0.4 )
 	day:SetSize( 130, 30 )
 	day:SetValue( AGECHECK_DAY )
+	day:SetSortItems( false )
 	for i = 1, 31, 1 do
-		day:AddChoice( i )
+		day:AddChoice( i .. "" )
 	end
 	
 	-- MONTH
@@ -187,8 +189,9 @@ local function ageverify_runAgeCheck()
 	month:SetPos( fullX * 0.5 - 65, fullY * 0.4 )
 	month:SetSize( 130, 30 )
 	month:SetValue( AGECHECK_MONTH )
+	month:SetSortItems( false )
 	for i = 1, 12, 1 do
-		month:AddChoice( i )
+		month:AddChoice( i .. "" )
 	end
 	
 	-- YEAR
@@ -198,8 +201,9 @@ local function ageverify_runAgeCheck()
 	year:SetPos( fullX * 0.75 - 65, fullY * 0.4 )
 	year:SetSize( 130, 30 )
 	year:SetValue( AGECHECK_YEAR )
+	year:SetSortItems( false )
 	for i = 1900, 2015, 1 do
-		year:AddChoice( i )
+		year:AddChoice( i .. "" )
 	end
 	
 	-- ZODIAC SIGN
@@ -209,6 +213,7 @@ local function ageverify_runAgeCheck()
 	zodiac:SetPos( fullX * 0.5 - 65, fullY * 0.5 )
 	zodiac:SetSize( 130, 30 )
 	zodiac:SetValue( AGECHECK_ZODIAC )
+	zodiac:SetSortItems( false )
 	for i = 1, #AGECHECK_ZODIACS, 1 do
 		zodiac:AddChoice( AGECHECK_ZODIACS[i] )
 	end
