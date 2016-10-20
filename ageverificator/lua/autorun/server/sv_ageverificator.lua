@@ -198,7 +198,7 @@ end
 -- Approximately calculating the amount of seconds it will take until this person is finally 
 -- in the age to join the server
 -- To prevent publishing of people's birthdates on ban websites, we add up to 5 days from the ban length
-function ageveryify_getSecondsUntilAge( day_, month_, year_ )
+function ageverify_getSecondsUntilAge( day_, month_, year_ )
 	
 	local currentSeconds = tonumber( os.time() )
 	local playerSecondsSinceBirth = tonumber( os.time( { year = year_, month = month_, day = day_, hour = 0, min = 0, sec = 0, isdst = false } ) )
@@ -465,7 +465,7 @@ function ageverify_addEntry( data )
 		if age < math.floor( ageverify_getAge( day, month, year ) ) then
 			length = ( ( AGECHECK_MINIMUM_AGE - age ) * 365 * 24 * 60 * 60 ) - ( 365 * 24 * 60 * 60 / 2 ) -- Statistically we expect the average time it will take for a player to reach the age to be half a year less than what is left in years, so if he is 1 year too young, we wait half a year. 3 years too young we wait 2.5 years etc.
 		else
-			length = ageveryify_getSecondsUntilAge( day, month, year ) -- If the birthday results in a lower age, we expect the birthday to be valid and ban him according to the duration of that
+			length = ageverify_getSecondsUntilAge( day, month, year ) -- If the birthday results in a lower age, we expect the birthday to be valid and ban him according to the duration of that
 		end
 		ageverify_reportBan( ply, AGECHECK_BAN_REASON_OTHER_TOO_YOUNG, -1 )
 		ageverify_doBan( ply, length, AGECHECK_BAN_REASON_TOO_YOUNG, AGECHECK_SBAN_STEAMID )
